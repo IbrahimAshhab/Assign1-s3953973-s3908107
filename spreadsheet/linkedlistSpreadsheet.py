@@ -217,8 +217,7 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
             currentCol = currentRow.data.head
             while currentCol != None:
                 if currentCol.data.val != None:
-                    non_none_cells.append(
-                        (currentCol.data.row, currentCol.data.col))
+                    non_none_cells.append(currentCol.data)
                 currentCol = currentCol.next
             currentRow = currentRow.next
 
