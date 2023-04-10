@@ -100,12 +100,37 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         """
         Inserts an empty row into the spreadsheet.
 
-        @param rowIndex Index of the existing row that will be after the newly inserted row.   If inserting as first row, specify rowIndex to be 0.   If inserting a row after the last one, specify rowIndex to be rowNum()-1.
+        @param rowIndex Index of the existing row that will be after the newly inserted row.
+        If inserting as first row, specify rowIndex to be 0.
+        If inserting a row after the last one, specify rowIndex to be rowNum()-1.
 
         @return True if operation was successful, or False if not, e.g., rowIndex is invalid.
         """
+        if (rowIndex < -1) or (rowIndex >= self.num_rows):
+            return False
+
+        currentRow = self.spread_sheet.head
+        row = 0
+        while currentRow != None:
+            if row == rowIndex:
+                self.spread_sheet.insert_after(currentRow, DoublyLinkedList())
+                currentRow = currentRow.next
+                for col in range(self.num_cols):
+                    currentRow.data.insert_end(Cell(row+1, col, None))
+                self.num_rows += 1
+
+                # update all the following rows with the correct indicies
+            if row > rowIndex:
+                currentCol = currentRow.data.head
+                while currentCol != None:
+                    currentCol.data.row += 1
+                    currentCol = currentCol.next
+                # break
+            currentRow = currentRow.next
+            row += 1
+
         # TO BE IMPLEMENTED
-        pass
+        # pass
 
         # REPLACE WITH APPROPRIATE RETURN VALUE
         return True
@@ -114,11 +139,31 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         """
         Inserts an empty column into the spreadsheet.
 
-        @param colIndex Index of the existing column that will be before the newly inserted row.  If inserting as first column, specify colIndex to be -1.
+        @param colIndex Index of the existing column that will be before the newly inserted row.
+        If inserting as first column, specify colIndex to be -1.
         """
+        if (colIndex < -1) or (colIndex >= self.num_cols):
+            return False
+
+        currentRow = self.spread_sheet.head
+        while currentRow != None:
+            currentCol = currentRow.data.head
+            while currentCol != None:
+                if currentCol.data.col == colIndex:
+                    self.spread_sheet.insert_after(currentCol, Cell(
+                        currentCol.data.row, currentCol.data.col+1, None))
+
+                if currentCol.data.col > colIndex:
+                    # when the next column is equal to current column, skip as it is the column that just got inserted
+                    if (currentCol.next != None and (currentCol.data.col == currentCol.next.data.col)):
+                        pass
+                    else:
+                        currentCol.data.col += 1
+                currentCol = currentCol.next
+            currentRow = currentRow.next
 
         # TO BE IMPLEMENTED
-        pass
+        # pass
 
         # REPLACE WITH APPROPRIATE RETURN VALUE
         return True
