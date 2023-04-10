@@ -133,12 +133,20 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
 
         @return True if cell can be updated.  False if cannot, e.g., row or column indices do not exist.
         """
+        cellUpdated = False
 
-        # TO BE IMPLEMENTED
-        pass
+        currentRow = self.spread_sheet.head
+        while currentRow != None:
+            currentCol = currentRow.data.head
+            while currentCol != None:
+                if currentCol.data.row == rowIndex and currentCol.data.col == colIndex:
+                    currentCol.data.val = value
+                    cellUpdated = True
+                currentCol = currentCol.next
+            currentRow = currentRow.next
 
         # REPLACE WITH APPROPRIATE RETURN VALUE
-        return True
+        return cellUpdated
 
     def rowNum(self) -> int:
         """
