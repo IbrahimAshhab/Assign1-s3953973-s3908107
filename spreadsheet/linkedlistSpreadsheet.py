@@ -85,8 +85,16 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
 
         @return True if operation was successful, or False if not.
         """
-        # TO BE IMPLEMENTED
-        pass
+        currentRow = self.spread_sheet.head
+        row = 0
+        while currentRow != None:
+            currentRow.data.insert_end(
+                Cell(row, self.num_cols, None))
+            currentRow = currentRow.next
+            row += 1
+
+        self.num_cols += 1
+        return True
 
     def insertRow(self, rowIndex: int) -> bool:
         """
