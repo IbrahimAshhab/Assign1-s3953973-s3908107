@@ -1,5 +1,6 @@
 from spreadsheet.baseSpreadsheet import BaseSpreadsheet
 from spreadsheet.cell import Cell
+from spreadsheet.doublyLinkedList import DoublyLinkedList
 
 
 # class ListNode:
@@ -22,6 +23,9 @@ from spreadsheet.cell import Cell
 class LinkedListSpreadsheet(BaseSpreadsheet):
 
     def __init__(self):
+        self.spread_sheet = DoublyLinkedList()
+        self.num_rows = 0
+        self.num_cols = 0
         # TO BE IMPLEMENTED
         pass
 
@@ -30,7 +34,34 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         Construct the data structure to store nodes.
         @param lCells: list of cells to be stored
         """
-        # TO BE IMPLEMENTED
+        for cell in lCells:
+            if cell.row > self.num_rows:
+                self.num_rows = cell.row + 1
+
+            if cell.col > self.num_cols:
+                self.num_cols = cell.col + 1
+
+        for row in range(self.num_rows):
+            self.spread_sheet.insert_end(DoublyLinkedList())
+
+        currentRow = self.spread_sheet.head
+        row = 0
+        while currentRow != None:
+            for col in range(self.num_cols):
+                currentRow.data.insert_end(Cell(row, col, None))
+            currentRow = currentRow.next
+            row += 1
+
+        for cell in lCells:
+            currentRow = self.spread_sheet.head
+            while currentRow != None:
+                currentCol = currentRow.data.head
+                while currentCol != None:
+                    if currentCol.data.row == cell.row and currentCol.data.col == cell.col:
+                        currentCol.data = cell
+                    currentCol = currentCol.next
+
+                currentRow = currentRow.next
         pass
 
     def appendRow(self):
@@ -99,10 +130,17 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         """
 
         # TO BE IMPLEMENTED
-        pass
+        # pass
+        if self.spread_sheet.head is None:
+            return 0
+        numRows = 1
+        currentCell = self.spread_sheet.head
 
+        while currentCell.next != None:
+            currentCell = currentCell.next
+            numRows += 1
         # TO BE IMPLEMENTED
-        return 0
+        return numRows
 
     def colNum(self) -> int:
         """
@@ -110,10 +148,19 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         """
 
         # TO BE IMPLEMENTED
-        pass
+        # pass
+        if self.spread_sheet.head is None:
+            return 0
+
+        numCols = 1
+        currentCell = self.spread_sheet.head.data.head
+
+        while currentCell.next != None:
+            currentCell = currentCell.next
+            numCols += 1
 
         # TO BE IMPLEMENTED
-        return 0
+        return numCols
 
     def find(self, value: float) -> [(int, int)]:
         """
@@ -123,20 +170,32 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
 
         @return List of cells (row, col) that contains the input value.
             """
+        value_list = []
+        currentRow = self.spread_sheet.head
+        while currentRow != None:
+            currentCol = currentRow.data.head
+            while currentCol != None:
+                if currentCol.data.val == value:
+                    value_list.append(
+                        (currentCol.data.row, currentCol.data.col))
+                currentCol = currentCol.next
+            currentRow = currentRow.next
 
-        # TO BE IMPLEMENTED
-        pass
-
-        # REPLACE WITH APPROPRIATE RETURN VALUE
-        return []
+        return value_list
 
     def entries(self) -> [Cell]:
         """
         @return A list of cells that have values (i.e., all non None cells).
         """
+        non_none_cells = []
+        currentRow = self.spread_sheet.head
+        while currentRow != None:
+            currentCol = currentRow.data.head
+            while currentCol != None:
+                if currentCol.data.val != None:
+                    non_none_cells.append(
+                        (currentCol.data.row, currentCol.data.col))
+                currentCol = currentCol.next
+            currentRow = currentRow.next
 
-        # TO BE IMPLEMENTED
-        pass
-
-        # TO BE IMPLEMENTED
-        return []
+        return non_none_cells
