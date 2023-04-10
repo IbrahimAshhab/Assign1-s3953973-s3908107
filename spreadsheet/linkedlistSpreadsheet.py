@@ -69,10 +69,10 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         Appends an empty row to the spreadsheet.
         """
         self.num_rows += 1  # this might cause an issue might not but most likely not
+        self.spread_sheet.insert_end(DoublyLinkedList())
         tail = self.spread_sheet.head
         while tail.next != None:
             tail = tail.next
-        self.spread_sheet.insert_end(DoublyLinkedList())
         for col in range(self.num_cols):
             tail.data.insert_end(
                 Cell(self.num_rows-1, col, None))
