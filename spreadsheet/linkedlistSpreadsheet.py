@@ -109,6 +109,13 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
         if (rowIndex < -1) or (rowIndex >= self.num_rows):
             return False
 
+        if rowIndex == -1:
+            self.spread_sheet.insert_front(DoublyLinkedList())
+            currentRow = self.spread_sheet.head      # currentRow.next
+            for col in range(self.num_cols):
+                currentRow.data.insert_end(Cell(0, col, None))
+            self.num_rows += 1
+
         currentRow = self.spread_sheet.head
         row = 0
         while currentRow != None:
@@ -120,7 +127,7 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
                 self.num_rows += 1
 
                 # update all the following rows with the correct indicies
-            if row > rowIndex:
+            if row > rowIndex and (row != 0 or rowIndex != -1):
                 currentCol = currentRow.data.head
                 while currentCol != None:
                     currentCol.data.row += 1
@@ -152,6 +159,9 @@ class LinkedListSpreadsheet(BaseSpreadsheet):
                 if currentCol.data.col == colIndex:
                     self.spread_sheet.insert_after(currentCol, Cell(
                         currentCol.data.row, currentCol.data.col+1, None))
+                if colIndex == -1 and currentCol.data.col == 0:
+                    currentRow.data.insert_front(Cell(
+                        currentCol.data.row, 0, None))
 
                 if currentCol.data.col > colIndex:
                     # when the next column is equal to current column, skip as it is the column that just got inserted
