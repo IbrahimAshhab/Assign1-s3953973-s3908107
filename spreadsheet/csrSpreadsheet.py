@@ -10,16 +10,13 @@ from spreadsheet.cell import Cell
 # ------------------------------------------------------------------------
 
 
-
-
 class CSRSpreadsheet(BaseSpreadsheet):
 
     def __init__(self):
         # TO BE IMPLEMENTED
-        ColA = []
-        ValA = []
-        SumA = []
-     
+        self.ColA = []
+        self.ValA = []
+        self.SumA = []
 
     def buildSpreadsheet(self, lCells: [Cell]):
         """
@@ -29,15 +26,13 @@ class CSRSpreadsheet(BaseSpreadsheet):
         sum = 0
         previous_row = -1
         for Cell in lCells:
-            if previous_row != Cell.row:    
+            if previous_row != Cell.row:
                 self.SumA.append(sum)
             previous_row = Cell.row
             self.ColA.append(Cell.col)
             self.ValA.append(Cell.val)
             sum += Cell.val
-        self.SumA.append(sum)    
-    
-
+        self.SumA.append(sum)
 
     def appendRow(self):
         """
@@ -48,8 +43,6 @@ class CSRSpreadsheet(BaseSpreadsheet):
         self.SumA.append(self.SumA[-1])
         return True
         # TO BE IMPLEMENTED
-    
-
 
     def appendCol(self):
         """
@@ -59,10 +52,8 @@ class CSRSpreadsheet(BaseSpreadsheet):
         """
         return True
         # TO BE IMPLEMENTED
-        
 
-
-    def insertRow(self, rowIndex: int)->bool:
+    def insertRow(self, rowIndex: int) -> bool:
         """
         Inserts an empty row into the spreadsheet.
 
@@ -76,8 +67,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         self.SumA.insert(rowIndex, self.SumA[rowIndex])
         return True
 
-
-    def insertCol(self, colIndex: int)->bool:
+    def insertCol(self, colIndex: int) -> bool:
         """
         Inserts an empty column into the spreadsheet.
 
@@ -87,14 +77,12 @@ class CSRSpreadsheet(BaseSpreadsheet):
         """
         if colIndex < 0 or colIndex >= self.colNum:
             return False
-        
-        for i in range(0,len(self.colA)):
+
+        for i in range(0, len(self.colA)):
             if self.colA[i] >= colIndex:
                 self.colA[i] += 1
         # REPLACE WITH APPROPRIATE RETURN VALUE
         return True
-
-
 
     def update(self, rowIndex: int, colIndex: int, value: float) -> bool:
         """
@@ -110,31 +98,30 @@ class CSRSpreadsheet(BaseSpreadsheet):
         # should update be able to update an empty cell
 
         # TO BE IMPLEMENTED
-        if (rowIndex < 0) or (rowIndex >= self.rowNum):
+        if (rowIndex < 0) or (rowIndex >= len(self.SumA) - 1):
             return False
-        
-        if colIndex < 0 or colIndex >= self.colNum:
+
+        if colIndex < 0 or colIndex >= max(self.ColA) + 1:
             return False
         # REPLACE WITH APPROPRIATE RETURN VALUE
 
         current_row = 0
         sum = 0
 
-        #looping thru all values, incrementing sum
-        for i in range(len(self.colA)):
+        # looping thru all values, incrementing sum
+        for i in range(len(self.ColA)):
             while sum == self.SumA[current_row + 1]:
                 current_row += 1
-            sum += self.ValA[i]  
-            if current_row == rowIndex and self.colA[i] == colIndex:
+            sum += self.ValA[i]
+            if current_row == rowIndex and self.ColA[i] == colIndex:
                 difference = value - self.ValA[i]
                 self.ValA[i] = value
-                for j in range(current_row + 1, len(self.SumA)): 
+                for j in range(current_row + 1, len(self.SumA)):
                     self.SumA[j] += difference
                 return True
         return False
 
-
-    def rowNum(self)->int:
+    def rowNum(self) -> int:
         """
         @return Number of rows the spreadsheet has.
         """
@@ -142,15 +129,12 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         return len(self.SumA) - 1
 
-
-    def colNum(self)->int:
+    def colNum(self) -> int:
         """
         @return Number of column the spreadsheet has.
         """
         # TO BE IMPLEMENTED
-        return max(self.colA) + 1
-        
-
+        return max(self.ColA) + 1
 
     def find(self, value: float) -> [(int, int)]:
         """
@@ -159,7 +143,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         @param value value to search for.
 
         @return List of cells (row, col) that contains the input value.
-	    """
+            """
 
         # TO BE IMPLEMENTED
 
@@ -167,17 +151,14 @@ class CSRSpreadsheet(BaseSpreadsheet):
         result = []
         current_row = 0
         sum = 0
-        for i in range(len(self.colA)):
+        for i in range(len(self.ColA)):
             while sum == self.SumA[current_row + 1]:
                 current_row += 1
-            sum += self.ValA[i]  
+            sum += self.ValA[i]
             if self.ValA[i] == value:
                 result.append((current_row, self.ColA[i]))
-              
+
         return result
-
-
-
 
     def entries(self) -> [Cell]:
         """
@@ -186,10 +167,10 @@ class CSRSpreadsheet(BaseSpreadsheet):
         result = []
         current_row = 0
         sum = 0
-        for i in range(len(self.colA)):
+        for i in range(len(self.ColA)):
             while sum == self.SumA[current_row + 1]:
                 current_row += 1
             sum += self.ValA[i]
             result.append(Cell(current_row, self.ColA[i], self.ValA))
-              
+
         return result
