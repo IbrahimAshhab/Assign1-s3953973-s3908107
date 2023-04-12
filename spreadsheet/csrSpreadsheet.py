@@ -61,7 +61,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         @return True if operation was successful, or False if not, e.g., rowIndex is invalid.
         """
-        if (rowIndex < 0) or (rowIndex >= self.rowNum):
+        if (rowIndex < 0) or (rowIndex >= self.rowNum()):
             return False
         # REPLACE WITH APPROPRIATE RETURN VALUE
         self.SumA.insert(rowIndex, self.SumA[rowIndex])
@@ -75,12 +75,12 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         return True if operation was successful, or False if not, e.g., colIndex is invalid.
         """
-        if colIndex < 0 or colIndex >= self.colNum:
+        if colIndex < 0 or colIndex >= self.colNum():
             return False
 
-        for i in range(0, len(self.colA)):
-            if self.colA[i] >= colIndex:
-                self.colA[i] += 1
+        for i in range(0, len(self.ColA)):
+            if self.ColA[i] >= colIndex:
+                self.ColA[i] += 1
         # REPLACE WITH APPROPRIATE RETURN VALUE
         return True
 
@@ -171,6 +171,6 @@ class CSRSpreadsheet(BaseSpreadsheet):
             while sum == self.SumA[current_row + 1]:
                 current_row += 1
             sum += self.ValA[i]
-            result.append(Cell(current_row, self.ColA[i], self.ValA))
+            result.append(Cell(current_row, self.ColA[i], self.ValA[i]))
 
         return result
