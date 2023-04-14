@@ -23,16 +23,34 @@ class CSRSpreadsheet(BaseSpreadsheet):
         Construct the data structure to store nodes.
         @param lCells: list of cells to be stored
         """
-        sum = 0
-        previous_row = -1
-        for Cell in lCells:
-            if previous_row != Cell.row:
-                self.SumA.append(sum)
-            previous_row = Cell.row
-            self.ColA.append(Cell.col)
-            self.ValA.append(Cell.val)
-            sum += Cell.val
-        self.SumA.append(sum)
+        lCellsCopy = lCells.copy()
+
+        numIters = len(lCells)
+        for x in range(numIters):
+            lowest_cell = lCells[0]
+            for i in range(len(lCells)):
+                if lCells[i].row == lowest_cell.row:
+                    if lCells[i].col < lowest_cell.col:
+                        lowest_cell = lCells[i]
+                if lCells[i].row < lowest_cell.row:
+                    lowest_cell = lCells[i]
+            self.ColA.append(lowest_cell.col)
+            self.ValA.append(lowest_cell.val)
+            lCells.remove(lowest_cell)
+
+        num_rows = 0
+
+        for cell in lCellsCopy:
+            if cell.row > num_rows - 1:
+                num_rows = cell.row + 1
+
+        cumulativeSum = 0
+        for x in range(num_rows):
+            for cell in lCellsCopy:
+                if cell.row == x:
+                    cumulativeSum += cell.val
+            self.SumA.append(cumulativeSum)
+        pass
 
     def appendRow(self):
         """
