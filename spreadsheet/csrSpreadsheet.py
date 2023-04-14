@@ -17,6 +17,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         self.ColA = []
         self.ValA = []
         self.SumA = []
+        self.num_cols = 0
 
     def buildSpreadsheet(self, lCells: [Cell]):
         """
@@ -44,6 +45,10 @@ class CSRSpreadsheet(BaseSpreadsheet):
             if cell.row > num_rows - 1:
                 num_rows = cell.row + 1
 
+        for cell in lCellsCopy:
+            if cell.col > self.num_cols - 1:
+                self.num_cols = cell.col + 1
+
         cumulativeSum = 0
         for x in range(num_rows):
             for cell in lCellsCopy:
@@ -68,6 +73,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         @return True if operation was successful, or False if not.
         """
+        self.num_cols += 1
         return True
         # TO BE IMPLEMENTED
 
@@ -145,14 +151,14 @@ class CSRSpreadsheet(BaseSpreadsheet):
         """
         # TO BE IMPLEMENTED
 
-        return len(self.SumA) - 1
+        return len(self.SumA)
 
     def colNum(self) -> int:
         """
         @return Number of column the spreadsheet has.
         """
         # TO BE IMPLEMENTED
-        return max(self.ColA) + 1
+        return self.num_cols
 
     def find(self, value: float) -> [(int, int)]:
         """
@@ -170,7 +176,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         current_row = 0
         sum = 0
         for i in range(len(self.ColA)):
-            while sum == self.SumA[current_row + 1]:
+            while sum == self.SumA[current_row]:
                 current_row += 1
             sum += self.ValA[i]
             if self.ValA[i] == value:
@@ -186,7 +192,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         current_row = 0
         sum = 0
         for i in range(len(self.ColA)):
-            while sum == self.SumA[current_row + 1]:
+            while sum == self.SumA[current_row]:
                 current_row += 1
             sum += self.ValA[i]
             result.append(Cell(current_row, self.ColA[i], self.ValA[i]))
