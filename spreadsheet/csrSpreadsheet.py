@@ -1,3 +1,6 @@
+import math
+from typing import List
+
 from spreadsheet.baseSpreadsheet import BaseSpreadsheet
 from spreadsheet.cell import Cell
 
@@ -19,43 +22,24 @@ class CSRSpreadsheet(BaseSpreadsheet):
         self.SumA = []
         self.num_cols = 0
 
-    def buildSpreadsheet(self, lCells: [Cell]):
+    def buildSpreadsheet(self, lCells: List[Cell]):
         """
         Construct the data structure to store nodes.
         @param lCells: list of cells to be stored
         """
-        lCellsCopy = lCells.copy()
-
-        numIters = len(lCells)
-        for x in range(numIters):
-            lowest_cell = lCells[0]
-            for i in range(len(lCells)):
-                if lCells[i].row == lowest_cell.row:
-                    if lCells[i].col < lowest_cell.col:
-                        lowest_cell = lCells[i]
-                if lCells[i].row < lowest_cell.row:
-                    lowest_cell = lCells[i]
-            self.ColA.append(lowest_cell.col)
-            self.ValA.append(lowest_cell.val)
-            lCells.remove(lowest_cell)
-
-        num_rows = 0
-
-        for cell in lCellsCopy:
-            if cell.row > num_rows - 1:
-                num_rows = cell.row + 1
-
-        for cell in lCellsCopy:
-            if cell.col > self.num_cols - 1:
-                self.num_cols = cell.col + 1
-
-        cumulativeSum = 0
-        for x in range(num_rows):
-            for cell in lCellsCopy:
-                if cell.row == x:
-                    cumulativeSum += cell.val
-            self.SumA.append(cumulativeSum)
-        pass
+        # Slower to do sort and build in two steps, but easier
+        cells = sorted(lCells, key=lambda c: (c.row, c.col))
+        cumsum = 0
+        previousRow = -1
+        for cell in cells:
+            for i in range(previousRow, cell.row):
+                self.SumA.append(cumsum)
+            previousRow = cell.row
+            self.ColA.append(cell.col)
+            self.num_cols = max(self.num_cols, cell.col)
+            self.ValA.append(cell.val)
+            cumsum += cell.val
+        self.SumA.append(cumsum)
 
     def appendRow(self):
         """
@@ -99,11 +83,11 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         return True if operation was successful, or False if not, e.g., colIndex is invalid.
         """
-        if colIndex < 0 or colIndex >= self.colNum():
+        if not (0 <= colIndex < self.num_cols):
             return False
-
-        for i in range(0, len(self.ColA)):
-            if self.ColA[i] >= colIndex:
+        self.num_cols += 1
+        for i, col in enumerate(self.ColA):
+            if col >= colIndex:
                 self.ColA[i] += 1
         # REPLACE WITH APPROPRIATE RETURN VALUE
         return True
@@ -119,31 +103,57 @@ class CSRSpreadsheet(BaseSpreadsheet):
         @return True if cell can be updated.  False if cannot, e.g., row or column indices do not exist.
         """
 
-        # should update be able to update an empty cell
-
         # TO BE IMPLEMENTED
-        if (rowIndex < 0) or (rowIndex >= len(self.SumA) - 1):
+        if not (0 <= rowIndex < self.rowNum()):
             return False
 
-        if colIndex < 0 or colIndex >= max(self.ColA) + 1:
+        if not (0 <= colIndex < self.colNum()):
             return False
         # REPLACE WITH APPROPRIATE RETURN VALUE
 
-        current_row = 0
-        sum = 0
-
         # looping thru all values, incrementing sum
-        for i in range(len(self.ColA)):
-            while sum == self.SumA[current_row + 1]:
-                current_row += 1
-            sum += self.ValA[i]
-            if current_row == rowIndex and self.ColA[i] == colIndex:
+
+        for i, c in enumerate(self.entries()):
+            if c.row == rowIndex and c.col == colIndex:
                 difference = value - self.ValA[i]
                 self.ValA[i] = value
-                for j in range(current_row + 1, len(self.SumA)):
+                for j in range(c.row + 1, len(self.SumA)):
                     self.SumA[j] += difference
                 return True
-        return False
+
+        # Can't update an existing cell so need to insert a new one
+        # This is slow
+
+        current_row = 0
+        current_col = 0
+        sum = 0
+        # Find row
+        while current_row != rowIndex and current_col < len(self.ColA):
+            while sum == self.SumA[current_row + 1]:
+                current_row += 1
+                if current_row == rowIndex:
+                    break
+            else:
+                sum += self.ValA[current_col]
+                current_col += 1
+        current_row = rowIndex
+        # Find column
+        found_index = len(self.ColA)
+        for i in range(current_col, len(self.ColA)):
+            # Check if reached end of the row or found a column that is before the new one
+            if sum == self.SumA[current_row + 1]:
+                found_index = i
+                break
+            elif self.ColA[i] < colIndex:
+                found_index = i + 1
+            sum += self.ValA[current_col]
+
+        self.ColA.insert(found_index, colIndex)
+        self.ValA.insert(found_index, value)
+
+        for i in range(current_row + 1, len(self.SumA)):
+            self.SumA[i] += value
+        return True
 
     def rowNum(self) -> int:
         """
@@ -151,14 +161,13 @@ class CSRSpreadsheet(BaseSpreadsheet):
         """
         # TO BE IMPLEMENTED
 
-        return len(self.SumA)
+        return len(self.SumA) - 1
 
     def colNum(self) -> int:
         """
         @return Number of column the spreadsheet has.
         """
-        # TO BE IMPLEMENTED
-        return self.num_cols
+        return self.num_cols + 1
 
     def find(self, value: float) -> [(int, int)]:
         """
@@ -168,23 +177,9 @@ class CSRSpreadsheet(BaseSpreadsheet):
 
         @return List of cells (row, col) that contains the input value.
             """
+        return [(c.row, c.col) for c in self.entries() if c.val == value]
 
-        # TO BE IMPLEMENTED
-
-        # REPLACE WITH APPROPRIATE RETURN VALUE
-        result = []
-        current_row = 0
-        sum = 0
-        for i in range(len(self.ColA)):
-            while sum == self.SumA[current_row]:
-                current_row += 1
-            sum += self.ValA[i]
-            if self.ValA[i] == value:
-                result.append((current_row, self.ColA[i]))
-
-        return result
-
-    def entries(self) -> [Cell]:
+    def entries(self) -> List[Cell]:
         """
         return a list of cells that have values (i.e., all non None cells).
         """
@@ -192,7 +187,7 @@ class CSRSpreadsheet(BaseSpreadsheet):
         current_row = 0
         sum = 0
         for i in range(len(self.ColA)):
-            while sum == self.SumA[current_row]:
+            while math.isclose(sum, self.SumA[current_row + 1]):
                 current_row += 1
             sum += self.ValA[i]
             result.append(Cell(current_row, self.ColA[i], self.ValA[i]))
